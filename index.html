@@ -111,15 +111,13 @@
   </footer>
 
   <script>
-    const storedTasks = JSON.parse(localStorage.getItem("allTasks"));
-    const allTasks = storedTasks ? storedTasks : [];
+    const allTasks = [];
     const todaysTasks = [];
     const currentDate = new Date();
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     document.getElementById("current-date").textContent = formatDate(currentDate);
-    JSON.parse(localStorage.getItem("allTasks"));
 
     function formatDate(date) {
       const day = date.getDate();
@@ -142,7 +140,6 @@
 
       const task = { name: taskName, dueDate };
       allTasks.push(task);
-      localStorage.setItem("allTasks", JSON.stringify(allTasks));
       displayTasks();
       taskInput.value = "";
       dueDateInput.value = "";
