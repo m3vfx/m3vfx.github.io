@@ -128,11 +128,16 @@
     }
     
     function loadTasks() {
-      const allTasks = JSON.parse(localStorage.getItem("allTasks")) || [];
-      console.log("load");
-      displayTasks();
-    
-    }
+  const savedTasks = JSON.parse(localStorage.getItem("allTasks")) || [];
+  allTasks.length = 0; // Clear the global allTasks array
+  savedTasks.forEach(task => {
+    allTasks.push({
+      name: task.name,
+      dueDate: new Date(task.dueDate), // Convert dueDate back to a Date object
+    });
+  });
+  displayTasks();
+}
 
     function formatDate(date) {
       const day = date.getDate();
