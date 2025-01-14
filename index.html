@@ -123,21 +123,37 @@
     loadTasks();
     
     function saveTasks() {
-    localStorage.setItem("allTasks",       JSON.stringify(allTasks)); 
-    console.log("save");
-    }
+  localStorage.setItem("allTasks", JSON.stringify(allTasks));
+  localStorage.setItem("todaysTasks", JSON.stringify(todaysTasks));
+  console.log("Tasks saved to localStorage.");
+}
     
     function loadTasks() {
-  const savedTasks = JSON.parse(localStorage.getItem("allTasks")) || [];
+  // Load allTasks
+  const savedAllTasks = JSON.parse(localStorage.getItem("allTasks")) || [];
   allTasks.length = 0; // Clear the global allTasks array
-  savedTasks.forEach(task => {
+  savedAllTasks.forEach(task => {
     allTasks.push({
       name: task.name,
       dueDate: new Date(task.dueDate), // Convert dueDate back to a Date object
     });
   });
+
+  // Load todaysTasks
+  const savedTodaysTasks = JSON.parse(localStorage.getItem("todaysTasks")) || [];
+  todaysTasks.length = 0; // Clear the global todaysTasks array
+  savedTodaysTasks.forEach(task => {
+    todaysTasks.push({
+      name: task.name,
+      dueDate: new Date(task.dueDate), // Convert dueDate back to a Date object
+    });
+  });
+
+  // Display tasks
   displayTasks();
+  displayTodaysTasks();
 }
+
 
     function formatDate(date) {
       const day = date.getDate();
@@ -167,6 +183,7 @@
     }
 
     function displayTasks() {
+      saveTasks();
       const allTasksList = document.getElementById("all-tasks");
       allTasksList.innerHTML = "";
 
@@ -186,6 +203,7 @@
     }
 
     function assignTask() {
+      saveTasks();
       if (allTasks.length === 0) {
         alert("No tasks available to assign.");
         return;
@@ -213,6 +231,7 @@
       const task = allTasks[index];
       todaysTasks.push(task);
       allTasks.splice(index, 1);
+      saveTasks();
       displayTasks();
       displayTodaysTasks();
     }
