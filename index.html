@@ -1,1 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1e1e2f;
+      color: #cfcfe1;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4e4e8e;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    main {
+      margin: 20px auto;
+      max-width: 600px;
+      background: #29293d;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    }
+    h1, h2 {
+      color: #a6a6f2;
+      text-align: center;
+    }
+    p {
+      text-align: center;
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+    input[type="text"], input[type="date"] {
+      width: calc(50% - 10px);
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      font-size: 1em;
+      background-color: #2d2d42;
+      color: #cfcfe1;
+    }
+    button {
+      background-color: #4e4e8e;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #393965;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #3c3c50;
+      margin: 5px 0;
+      padding: 10px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .highlight {
+      border-color: #ff6b6b;
+      color: #ff4c4c;
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Task Manager</h1>
+  </header>
+  <main>
+    <p>Today is <span id="current-date"></span></p>
+    <h2>Add a Task</h2>
+    <div style="display: flex; justify-content: space-between;">
+      <input id="task-input" type="text" placeholder="Enter task">
+      <input id="due-date" type="date">
+    </div>
+    <button style="width: 100%; margin-top: 10px;" onclick="addTask()">Add Task</button>
+
+    <h2>All Tasks</h2>
+    <ul id="all-tasks"></ul>
+
+    <h2>Today's Tasks</h2>
+    <ul id="todays-tasks"></ul>
+    <button style="width: 100%; margin-top: 10px;" onclick="assignTask()">Assign Task</button>
+  </main>
+  <footer>
+    <p>&copy; 2025 Task Manager. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const allTasks = [];
+    const todaysTasks = [];
+    const currentDate = new Date();
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    document.getElementById("current-date").textContent = formatDate(currentDate);
+
+    function formatDate(date) {
+      const day = date.getDate();
+      const daySuffix = day % 10 === 1 && day !== 11 ? "st" :
+                        day % 10 === 2 && day !== 12 ? "nd" :
+                        day % 10 === 3 && day !== 13 ? "rd" : "th";
+      return `${dayNames[date.getDay()]}, ${day}${daySuffix} of ${monthNames[date.getMonth()]}`;
+    }
+
+    function addTask() {
+      const taskInput = document.getElementById("task-input");
+      const dueDateInput = document.getElementById("due-date");
+      const taskName = taskInput.value.trim();
+      const dueDate = new Date(dueDateInput.value);
+
+      if (!taskName || isNaN(dueDate)) {
+        alert("Please enter a task and a valid due date.");
+        return;
+      }
+
+      const task = { name: taskName, dueDate };
+      allTasks.push(task);
+      displayTasks();
+      taskInput.value = "";
+      dueDateInput.value = "";
+    }
+
+    function displayTasks() {
+      const allTasksList = document.getElementById("all-tasks");
+      allTasksList.innerHTML = "";
+
+      allTasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        const daysRemaining = Math.ceil((task.dueDate - currentDate) / (1000 * 60 * 60 * 24));
+        li.innerHTML = `<span ${daysRemaining <= 3 ? 'class="highlight"' : ""}>${task.name} - ${formatDate(task.dueDate)}</span>`;
+        const button = document.createElement("button");
+        button.textContent = "Remove";
+        button.onclick = () => {
+          allTasks.splice(index, 1);
+          displayTasks();
+        };
+        li.appendChild(button);
+        allTasksList.appendChild(li);
+      });
+    }
+
+    function assignTask() {
+      if (allTasks.length === 0) {
+        alert("No tasks available to assign.");
+        return;
+      }
+
+      const probabilities = allTasks.map(task => {
+        const daysRemaining = Math.ceil((task.dueDate - currentDate) / (1000 * 60 * 60 * 24));
+        return daysRemaining > 0 ? 1 / daysRemaining : 1;
+      });
+
+      const totalProbability = probabilities.reduce((a, b) => a + b, 0);
+      const random = Math.random() * totalProbability;
+      let cumulative = 0;
+
+      for (let i = 0; i < allTasks.length; i++) {
+        cumulative += probabilities[i];
+        if (random <= cumulative) {
+          addToTodaysTasks(i);
+          break;
+        }
+      }
+    }
+
+    function addToTodaysTasks(index) {
+      const task = allTasks[index];
+      todaysTasks.push(task);
+      allTasks.splice(index, 1);
+      displayTasks();
+      displayTodaysTasks();
+    }
+
+    function displayTodaysTasks() {
+      const todaysTasksList = document.getElementById("todays-tasks");
+      todaysTasksList.innerHTML = "";
+
+      todaysTasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `${task.name} - ${formatDate(task.dueDate)}`;
+        const completeButton = document.createElement("button");
+        completeButton.textContent = "Complete";
+        completeButton.onclick = () => {
+          todaysTasks.splice(index, 1);
+          displayTodaysTasks();
+        };
+        const uncompleteButton = document.createElement("button");
+        uncompleteButton.textContent = "Uncomplete";
+        uncompleteButton.onclick = () => {
+          allTasks.push(todaysTasks[index]);
+          todaysTasks.splice(index, 1);
+          displayTodaysTasks();
+          displayTasks();
+        };
+        li.appendChild(completeButton);
+        li.appendChild(uncompleteButton);
+        todaysTasksList.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
 
