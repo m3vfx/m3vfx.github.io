@@ -1,3 +1,4 @@
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -110,15 +111,13 @@
   </footer>
 
   <script>
+    const allTasks = [];
+    const todaysTasks = [];
     const currentDate = new Date();
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     document.getElementById("current-date").textContent = formatDate(currentDate);
-
-    // Load tasks from localStorage
-    let allTasks = JSON.parse(localStorage.getItem('allTasks')) || [];
-    let todaysTasks = JSON.parse(localStorage.getItem('todaysTasks')) || [];
 
     function formatDate(date) {
       const day = date.getDate();
@@ -141,7 +140,6 @@
 
       const task = { name: taskName, dueDate };
       allTasks.push(task);
-      saveTasks();
       displayTasks();
       taskInput.value = "";
       dueDateInput.value = "";
@@ -159,7 +157,6 @@
         button.textContent = "Remove";
         button.onclick = () => {
           allTasks.splice(index, 1);
-          saveTasks();
           displayTasks();
         };
         li.appendChild(button);
@@ -195,7 +192,6 @@
       const task = allTasks[index];
       todaysTasks.push(task);
       allTasks.splice(index, 1);
-      saveTasks();
       displayTasks();
       displayTodaysTasks();
     }
@@ -211,7 +207,6 @@
         completeButton.textContent = "Complete";
         completeButton.onclick = () => {
           todaysTasks.splice(index, 1);
-          saveTasks();
           displayTodaysTasks();
         };
         const uncompleteButton = document.createElement("button");
@@ -219,7 +214,6 @@
         uncompleteButton.onclick = () => {
           allTasks.push(todaysTasks[index]);
           todaysTasks.splice(index, 1);
-          saveTasks();
           displayTodaysTasks();
           displayTasks();
         };
@@ -228,16 +222,6 @@
         todaysTasksList.appendChild(li);
       });
     }
-
-    // Save tasks to localStorage
-    function saveTasks() {
-      localStorage.setItem('allTasks', JSON.stringify(allTasks));
-      localStorage.setItem('todaysTasks', JSON.stringify(todaysTasks));
-    }
-
-    // Initial render
-    displayTasks();
-    displayTodaysTasks();
   </script>
 </body>
 </html>
