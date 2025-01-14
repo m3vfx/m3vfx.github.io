@@ -167,7 +167,7 @@
       const taskInput = document.getElementById("task-input");
       const dueDateInput = document.getElementById("due-date");
       const taskName = taskInput.value.trim();
-      const dueDate = new Date(dueDateInput.value + 1);
+      const dueDate = new Date(dueDateInput.value + 'T00:00:00-08:00');
 
       if (!taskName || isNaN(dueDate)) {
         alert("Please enter a task and a valid due date.");
